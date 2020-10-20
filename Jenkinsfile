@@ -1,5 +1,10 @@
 pipeline {
     agent any 
+    
+    environment {
+       PASS = credentials('registry-pass') 
+    }
+   
     stages {
         stage('Build') { 
             steps {
@@ -9,5 +14,27 @@ pipeline {
                    '''
             }
         }
+        stage('Test') { 
+            steps {
+                sh '''
+                   ./jenkins/test/mvn.sh mvn test
+                   ''' 
+            }
+        }
+        stage('Push') { 
+            steps {
+                sh '''
+                   ./jenkins/push/push.ch
+                   ''' 
+              }
+            }
+        
+        stage('Deploy') { 
+            steps {
+                sh '''
+                   ./jenkins/deploy/deploy.sh
+                   ''' 
+            }
+        }
     }
-  }
+}
